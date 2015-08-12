@@ -1,0 +1,15 @@
+package rpcproto;
+
+message ReqHeader
+{
+  required uint64 Id = 1;
+  required int32 Method = 2;
+  optional bytes Params = 3;
+}
+
+message RspHeader
+{
+  required uint64 Id = 1;
+  required bytes Result = 2;
+  optional string Error = 3;
+}

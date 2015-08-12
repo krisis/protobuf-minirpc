@@ -1,0 +1,13 @@
+package calc;
+
+message CalcReq
+{
+  required int32 Op = 1;
+  required int32 A = 2;
+  required int32 B = 3;
+}
+
+message CalcRsp
+{
+  required int32 ret = 1;
+}
