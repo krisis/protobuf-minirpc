@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "rpc.h"
 #include "rpc.pb-c.h"
 #include "calc.pb-c.h"
 
@@ -10,10 +11,6 @@
 enum method_type {
         CALCULATE = 1
 };
-#define NUM_METHODS 5
-
-typedef int (*rpc_handler_func) (ProtobufCBinaryData *req,
-                                 ProtobufCBinaryData *reply);
 /* Rpcproto method declarations */
 
 static int
@@ -28,6 +25,7 @@ calculate (ProtobufCBinaryData *req, ProtobufCBinaryData *reply);
  * */
 
 /* Rpcproto methods table */
+#define NUM_METHODS 5
 static rpc_handler_func vtable[NUM_METHODS] =
 {
         [CALCULATE] = calculate,
