@@ -3,14 +3,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "list.h"
 #include "rpc.h"
 #include "rpc.pb-c.h"
 #include "calc.pb-c.h"
 
-/* Rpcproto Method constants */
-enum method_type {
-        CALCULATE = 1
-};
 /* Rpcproto method declarations */
 
 static int
@@ -82,14 +79,14 @@ out:
  * pseudo code:
  *
  * read buffer from network
- * reqhdr = rpc_parse_header (msg, len);
+ * reqhdr = rpc_read_req (msg, len);
  * rsphdr = RSP_HEADER__INIT;
  * ret = rpc_invoke_call (reqhdr, &rsphdr)
  * if (ret)
  *   goto out;
  * char *buf = NULL;
- * ret = rpc_build_response (&rsphdr, &buf);
- * if (ret)
+ * ret = rpc_write_reply (&rsphdr, &buf);
+ * if (ret != -1)
  *   goto out;
  *
  * send buf over n/w
@@ -107,17 +104,38 @@ out:
  * @buf is allocated by this function.
  * */
 int
-rpc_build_response (Rpcproto__RspHeader *rsphdr, char **buf)
+rpc_write_request (Rpcproto__ReqHeader *reqhdr, char **buf)
+{
+        if (!buf)
+                return -1;
+
+        size_t reqlen = rpcproto__req_header__get_packed_size (reqhdr);
+        *buf = calloc (1, reqlen+8);
+        if (!*buf)
+                return -1;
+
+        rpcproto__req_header__pack(reqhdr, *buf+8);
+        memcpy(*buf, &reqlen, sizeof(uint64_t));
+        return reqlen + sizeof(uint64_t);
+}
+
+/* returns the no. of bytes written to @buf
+ * @buf is allocated by this function.
+ * */
+int
+rpc_write_reply (Rpcproto__RspHeader *rsphdr, char **buf)
 {
         if (!buf)
                 return -1;
 
         size_t rsplen = rpcproto__rsp_header__get_packed_size (rsphdr);
-        *buf = calloc (1, rsplen);
-        if (*buf)
+        *buf = calloc (1, rsplen+sizeof(uint64_t));
+        if (!*buf)
                 return -1;
 
-        return rpcproto__rsp_header__pack (rsphdr, *buf);
+        rpcproto__rsp_header__pack (rsphdr, *buf + sizeof(uint64_t));
+        memcpy (*buf, &rsplen, sizeof(rsplen));
+        return rsplen+sizeof(uint64_t);
 }
 
 int
@@ -135,17 +153,25 @@ rpc_invoke_call (Rpcproto__ReqHeader *reqhdr, Rpcproto__RspHeader *rsphdr)
         return ret;
 }
 
-Rpcproto__ReqHeader *
-rpc_parse_header (const char* msg, size_t msg_len)
+Rpcproto__RspHeader *
+rpc_read_rsp (const char *msg, size_t msg_len)
 {
         char *hdr;
-        uint64_t proto_len;
+        uint64_t proto_len = 0;
 
-        proto_len = strtoull (msg, &hdr, 10);
-        if ((hdr == msg)|| (proto_len == ULLONG_MAX)) {
-                fprintf(stderr, "invalid message length\n");
-                return NULL;
-        }
+        memcpy (&proto_len, msg, sizeof(uint64_t));
+        printf ("proto_len = %"PRIu64"\n", proto_len);
 
-        return rpcproto__req_header__unpack (NULL, proto_len, hdr);
+        return rpcproto__rsp_header__unpack(NULL, proto_len, msg+sizeof(proto_len));
+}
+
+Rpcproto__ReqHeader *
+rpc_read_req (const char* msg, size_t msg_len)
+{
+        char *hdr;
+        uint64_t proto_len = 0;
+
+        memcpy (&proto_len, msg, sizeof(uint64_t));
+        printf ("proto_len = %"PRIu64"\n", proto_len);
+        return rpcproto__req_header__unpack (NULL, proto_len, msg+sizeof(proto_len));
 }
