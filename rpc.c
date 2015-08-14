@@ -20,8 +20,13 @@ calculate (ProtobufCBinaryData *req, ProtobufCBinaryData *reply);
  *
  * */
 
-/* Rpcproto methods table */
 #define NUM_METHODS 5
+/* Method name to enum mapping*/
+char *method_by_name[NUM_METHODS] =
+{ [CALCULATE] = "calculate"
+};
+
+/* Rpcproto methods table */
 static rpc_handler_func vtable[NUM_METHODS] =
 {
         [CALCULATE] = calculate,
@@ -147,7 +152,20 @@ rpc_invoke_call (Rpcproto__ReqHeader *reqhdr, Rpcproto__RspHeader *rsphdr)
                 return -1;
         }
         rsphdr->id = reqhdr->id;
-        ret = vtable[reqhdr->method] (&reqhdr->params, &rsphdr->result);
+
+        int idx = 0, method = -1;
+        for (idx = 0; idx < NUM_METHODS; idx++) {
+                if (!method_by_name[idx])
+                        continue;
+                if (strcmp (method_by_name[idx], reqhdr->method) == 0) {
+                        method = idx;
+                        break;
+                }
+        }
+        if (method == -1)
+                return -1;
+
+        ret = vtable[method] (&reqhdr->params, &rsphdr->result);
 
         return ret;
 }

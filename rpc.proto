@@ -3,7 +3,7 @@ package rpcproto;
 message ReqHeader
 {
   required uint64 Id = 1;
-  required int32 Method = 2;
+  required string Method = 2;
   optional bytes Params = 3;
 }
 

@@ -26,7 +26,7 @@ event_cb (struct bufferevent *bev, short events, void *ctx)
 
                 Rpcproto__ReqHeader reqhdr = RPCPROTO__REQ_HEADER__INIT;
                 reqhdr.id = 1;
-                reqhdr.method = CALCULATE;
+                reqhdr.method = "calculate";
                 reqhdr.has_params = 1;
                 reqhdr.params.data = cbuf;
                 reqhdr.params.len = clen;
