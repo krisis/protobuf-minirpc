@@ -3,7 +3,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "list.h"
 #include "rpc.h"
 #include "rpc.pb-c.h"
 #include "calc.pb-c.h"
