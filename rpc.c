@@ -159,7 +159,6 @@ rpc_read_rsp (const char *msg, size_t msg_len)
         uint64_t proto_len = 0;
 
         memcpy (&proto_len, msg, sizeof(uint64_t));
-        printf ("proto_len = %"PRIu64"\n", proto_len);
 
         return rpcproto__rsp_header__unpack(NULL, proto_len, msg+sizeof(proto_len));
 }
@@ -171,6 +170,5 @@ rpc_read_req (const char* msg, size_t msg_len)
         uint64_t proto_len = 0;
 
         memcpy (&proto_len, msg, sizeof(uint64_t));
-        printf ("proto_len = %"PRIu64"\n", proto_len);
         return rpcproto__req_header__unpack (NULL, proto_len, msg+sizeof(proto_len));
 }

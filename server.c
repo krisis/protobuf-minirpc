@@ -23,7 +23,6 @@ read_cb(struct bufferevent *bev, void *ctx)
         struct evbuffer *output = bufferevent_get_output(bev);
 
         /* Copy all the data from the input buffer to the output buffer. */
-        DBUG(stdout, read_cb);
         char buf[4096] = {0};
         size_t read = bufferevent_read (bev, buf, sizeof (buf));
         if (read < 0) {
@@ -31,9 +30,6 @@ read_cb(struct bufferevent *bev, void *ctx)
 
         } else {
                 int ret;
-
-                fprintf(stdout, "buf = %s", buf);
-                fflush(stdout);
 
                 Rpcproto__ReqHeader *reqhdr = rpc_read_req (buf, read);
                 Rpcproto__RspHeader rsphdr = RPCPROTO__RSP_HEADER__INIT;
@@ -56,7 +52,6 @@ read_cb(struct bufferevent *bev, void *ctx)
 static void
 event_cb(struct bufferevent *bev, short events, void *ctx)
 {
-        DBUG(stdout, event_cb);
         if (events & BEV_EVENT_ERROR)
                 perror("Error from bufferevent");
         if (events & (BEV_EVENT_EOF | BEV_EVENT_ERROR)) {
@@ -69,7 +64,6 @@ accept_conn_cb(struct evconnlistener *listener,
     evutil_socket_t fd, struct sockaddr *address, int socklen,
     void *ctx)
 {
-        DBUG(stdout, accept_conn_cb);
         /* We got a new connection! Set up a bufferevent for it. */
         struct event_base *base = evconnlistener_get_base(listener);
         struct bufferevent *bev = bufferevent_socket_new(
