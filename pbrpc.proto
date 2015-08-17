@@ -1,0 +1,13 @@
+package pbcodec;
+
+message PbRpcRequest {
+  required uint64 Id = 1;
+  required string Method = 2;
+  optional bytes Params = 3;
+}
+
+message PbRpcResponse {
+  required uint64 Id = 1;
+  required bytes Result = 2;
+  optional string Error = 3;
+}

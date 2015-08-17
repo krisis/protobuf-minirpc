@@ -1,5 +1,5 @@
 #include "calc.pb-c.h"
-#include "rpc.pb-c.h"
+#include "pbrpc.pb-c.h"
 #include "rpc.h"
 #include <inttypes.h>
 #include <event2/event.h>
@@ -23,7 +23,7 @@ event_cb (struct bufferevent *bev, short events, void *ctx)
                 char *cbuf = calloc (1, clen);
                 calc__calc_req__pack(&calc, cbuf);
 
-                Rpcproto__ReqHeader reqhdr = RPCPROTO__REQ_HEADER__INIT;
+                Pbcodec__PbRpcRequest reqhdr = PBCODEC__PB_RPC_REQUEST__INIT;
                 reqhdr.id = 1;
                 reqhdr.method = "calculate";
                 reqhdr.has_params = 1;
@@ -46,7 +46,7 @@ read_cb (struct bufferevent *bev, void *ctx)
 {
         char buf[128] = {0};
         size_t read = bufferevent_read(bev, buf, sizeof(buf));
-        Rpcproto__RspHeader *rsp = rpc_read_rsp (buf, read);
+        Pbcodec__PbRpcResponse *rsp = rpc_read_rsp (buf, read);
         Calc__CalcRsp *crsp = calc__calc_rsp__unpack (NULL, rsp->result.len, rsp->result.data);
 
         printf("rsp->id = %d, rsp->sum = %d\n", rsp->id, crsp->ret);

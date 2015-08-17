@@ -31,8 +31,8 @@ read_cb(struct bufferevent *bev, void *ctx)
         } else {
                 int ret;
 
-                Rpcproto__ReqHeader *reqhdr = rpc_read_req (buf, read);
-                Rpcproto__RspHeader rsphdr = RPCPROTO__RSP_HEADER__INIT;
+                Pbcodec__PbRpcRequest *reqhdr = rpc_read_req (buf, read);
+                Pbcodec__PbRpcResponse rsphdr = PBCODEC__PB_RPC_RESPONSE__INIT;
                 ret = rpc_invoke_call (reqhdr, &rsphdr);
                 if (ret) {
                         fprintf(stderr, "ret = %d: rpc_invoke_call failed\n", ret);

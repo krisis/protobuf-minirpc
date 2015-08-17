@@ -6,8 +6,8 @@ find_package(PkgConfig)
 pkg_check_modules(PROTOC REQUIRED libprotobuf-c)
 pkg_check_modules(LIBEVENT REQUIRED libevent)
 
-set(MINIPROTO ${CMAKE_SOURCE_DIR}/rpc.proto)
-set(MINIPROTOSRC ${CMAKE_SOURCE_DIR}/rpc.pb-c.c ${CMAKE_SOURCE_DIR}/rpc.pb-c.h)
+set(MINIPROTO ${CMAKE_SOURCE_DIR}/pbrpc.proto)
+set(MINIPROTOSRC ${CMAKE_SOURCE_DIR}/pbrpc.pb-c.c ${CMAKE_SOURCE_DIR}/pbrpc.pb-c.h)
 add_custom_command (
   OUTPUT ${MINIPROTOSRC}
   COMMAND protoc-c --proto_path=${CMAKE_SOURCE_DIR} --c_out=${CMAKE_SOURCE_DIR} ${MINIPROTO}
