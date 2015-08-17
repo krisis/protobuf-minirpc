@@ -2,6 +2,7 @@
 #include <inttypes.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <endian.h>
 
 #include "rpc.h"
 #include "rpc.pb-c.h"
@@ -105,6 +106,7 @@ out:
 int
 rpc_write_request (Rpcproto__ReqHeader *reqhdr, char **buf)
 {
+        uint64_t be_len = 0;
         if (!buf)
                 return -1;
 
@@ -114,7 +116,8 @@ rpc_write_request (Rpcproto__ReqHeader *reqhdr, char **buf)
                 return -1;
 
         rpcproto__req_header__pack(reqhdr, *buf+8);
-        memcpy(*buf, &reqlen, sizeof(uint64_t));
+        be_len = htobe64 (reqlen);
+        memcpy(*buf, &be_len, sizeof(uint64_t));
         return reqlen + sizeof(uint64_t);
 }
 
@@ -124,6 +127,7 @@ rpc_write_request (Rpcproto__ReqHeader *reqhdr, char **buf)
 int
 rpc_write_reply (Rpcproto__RspHeader *rsphdr, char **buf)
 {
+        uint64_t be_len = 0;
         if (!buf)
                 return -1;
 
@@ -132,8 +136,9 @@ rpc_write_reply (Rpcproto__RspHeader *rsphdr, char **buf)
         if (!*buf)
                 return -1;
 
+        be_len = htobe64 (rsplen);
         rpcproto__rsp_header__pack (rsphdr, *buf + sizeof(uint64_t));
-        memcpy (*buf, &rsplen, sizeof(rsplen));
+        memcpy (*buf, &be_len, sizeof(be_len));
         return rsplen+sizeof(uint64_t);
 }
 
@@ -159,6 +164,7 @@ rpc_read_rsp (const char *msg, size_t msg_len)
         uint64_t proto_len = 0;
 
         memcpy (&proto_len, msg, sizeof(uint64_t));
+        proto_len = be64toh (proto_len);
 
         return rpcproto__rsp_header__unpack(NULL, proto_len, msg+sizeof(proto_len));
 }
@@ -170,5 +176,6 @@ rpc_read_req (const char* msg, size_t msg_len)
         uint64_t proto_len = 0;
 
         memcpy (&proto_len, msg, sizeof(uint64_t));
+        proto_len = be64toh (proto_len);
         return rpcproto__req_header__unpack (NULL, proto_len, msg+sizeof(proto_len));
 }
