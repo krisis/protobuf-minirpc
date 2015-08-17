@@ -16,7 +16,6 @@
 static void
 event_cb (struct bufferevent *bev, short events, void *ctx)
 {
-        DBUG(event_cb);
         if (events & BEV_EVENT_CONNECTED) {
                 Calc__CalcReq calc = CALC__CALC_REQ__INIT;
                 calc.op = 1; calc.a = 2; calc.b = 3;
@@ -40,15 +39,11 @@ event_cb (struct bufferevent *bev, short events, void *ctx)
 static void
 write_cb (struct bufferevent *bev, void *ctx)
 {
-        DBUG(write_cb);
-        fprintf (stdout, "remaining bytes in output buffer %d\n",
-                 evbuffer_get_length(bufferevent_get_output(bev)));
 }
 
 static void
 read_cb (struct bufferevent *bev, void *ctx)
 {
-        DBUG(read_cb);
         char buf[128] = {0};
         size_t read = bufferevent_read(bev, buf, sizeof(buf));
         Rpcproto__RspHeader *rsp = rpc_read_rsp (buf, read);
